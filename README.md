@@ -1,4 +1,4 @@
-# 🦅 K.R.U Movement / جنبش کِروُ
+# 🦅 K.R.U Movement /   #فکرولوژی_#گوردیسی جنبش فکری کِروُ
 **The Eternal Cloud Sanctuary of Mohammad Ebadi (Salek)**
 **پایگاه ابری و میراث جاودان محمد عبادی (سالک)**
 
