@@ -199,3 +199,4 @@ $$\lim_{E \to \infty} H(E) = \sum_{i=1}^{n} (C_i) \Rightarrow \text{Collapse}$$
 **2. The Gordisi Protocol (Illumination Function):**
 $$\lim_{E \to 0} \int H(E) = U \Rightarrow \text{Eternity}$$
 *Concept:* "Die before you die" (Ego Death). As the Ego ($E$) approaches zero, the fragmented cells integrate back into Universal Unity ($U$), opening the eyes to Illumination (اشراق).
+![The Fault Line of Ego](1000079246.jpg)
