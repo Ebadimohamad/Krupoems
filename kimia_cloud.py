@@ -1,14 +1,17 @@
+
 import os
-import requests
 
 def main():
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("API Key not found!")
-        return
+    # ساخت دایرکتوری در صورت نبودن
+    if not os.path.exists('translatedworks'):
+        os.makedirs('translatedworks')
     
-    print("Kimia is running...")
-    print("Connection test successful.")
+    # ساخت یک فایل آزمایشی برای اینکه گیت چیزی برای commit داشته باشد
+    with open('translatedworks/test.txt', 'w') as f:
+        f.write("Kimia is active and connected.")
+    
+    print("Directory 'translatedworks' created and test file saved.")
 
 if __name__ == "__main__":
     main()
+
