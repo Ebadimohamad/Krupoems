@@ -2,15 +2,17 @@
 import os
 
 def main():
-    # ساخت دایرکتوری در صورت نبودن
-    if not os.path.exists('translatedworks'):
-        os.makedirs('translatedworks')
+    # لیست تمام پوشه‌هایی که گیت‌هاب منتظر آن‌هاست
+    folders = ['translatedworks', 'formulas', 'logs']
     
-    # ساخت یک فایل آزمایشی برای اینکه گیت چیزی برای commit داشته باشد
-    with open('translatedworks/test.txt', 'w') as f:
-        f.write("Kimia is active and connected.")
+    for folder in folders:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            # ایجاد یک فایل خالی در هر پوشه برای شناسایی توسط گیت
+            with open(f'{folder}/.keep', 'w') as f:
+                f.write("placeholder")
     
-    print("Directory 'translatedworks' created and test file saved.")
+    print("All necessary folders (translatedworks, formulas, logs) created successfully.")
 
 if __name__ == "__main__":
     main()
