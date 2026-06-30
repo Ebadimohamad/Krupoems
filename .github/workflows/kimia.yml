@@ -1,29 +1,43 @@
-name: Kimia Translation Pipeline
+name: Kimia Autonomous Pipeline
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  translate:
+  kimia:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           pip install google-generativeai
 
-      - name: Run Translation Agent
+      - name: Run Kimia
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python translator_agent.py
-        env:
-          KIMIA_TOKEN: ${{ secrets.KIMIA_TOKEN }}
+
+      - name: Commit Results
+        run: |
+          git config --global user.name "Kimia"
+          git config --global user.email "kimia@github.actions"
+
+          git add translatedworks/
+
+          git commit -m "Kimia auto translation update" || echo "No changes"
+
+          git push
+
 
