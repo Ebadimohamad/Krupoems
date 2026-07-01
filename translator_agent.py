@@ -1,8 +1,9 @@
+
 import os
 import time
 import json
 import re
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 
 import google.generativeai as genai
 
@@ -22,47 +23,49 @@ def require_env(name: str) -> str:
 
 def extract_json(text: str) -> str:
     """
-    Gemini sometimes returns markdown fences or extra text.
-    This tries to extract the first valid JSON object substring.
+    Extract first valid JSON object from model response.
+    Removes markdown fences if present.
     """
     if not text:
         raise ValueError("Empty model response")
 
     t = text.strip()
 
-    # Remove common Markdown fences
+    # Remove markdown fences safely
     t = re.sub(r"^
-```(json)?\s*", "", t, flags=re.IGNORECASE)
+```(?:json)?\s*", "", t, flags=re.IGNORECASE)
 t = re.sub(r"\s*
 ```$", "", t)
 
-    # Fast path: already JSON object
+    # Already clean JSON
     if t.startswith("{") and t.endswith("}"):
         return t
 
-    # Find first {...} block
+    # Extract first {...}
     start = t.find("{")
     end = t.rfind("}")
     if start != -1 and end != -1 and end > start:
-        return t[start : end + 1]
+        return t[start:end + 1]
 
     raise ValueError("Could not extract JSON object from model response")
 
 
 def normalize_output(data: Dict[str, Any], source_filename: str, persian_text: str) -> Dict[str, Any]:
-    # Ensure required keys exist
-    data.setdefault("title", source_filename.replace(".txt", ""))
+    base_name = os.path.splitext(source_filename)[0]
+
+    data.setdefault("title", base_name)
     data.setdefault("persian_text", persian_text)
     data.setdefault("english_translation", "")
     data.setdefault("philosophical_concepts", [])
     data.setdefault("mathematical_formulas", [])
     data.setdefault("keywords", [])
 
-    # Force types
     if not isinstance(data.get("philosophical_concepts"), list):
         data["philosophical_concepts"] = [str(data["philosophical_concepts"])]
+
     if not isinstance(data.get("mathematical_formulas"), list):
         data["mathematical_formulas"] = [str(data["mathematical_formulas"])]
+
     if not isinstance(data.get("keywords"), list):
         data["keywords"] = [str(data["keywords"])]
 
@@ -85,7 +88,7 @@ Core rules:
 Text (Persian):
 {persian_text}
 
-JSON schema (must match exactly):
+JSON schema:
 {{
   "title": "",
   "persian_text": "",
@@ -102,8 +105,7 @@ def translate_one(model: genai.GenerativeModel, persian_text: str) -> Dict[str, 
     resp = model.generate_content(prompt)
     raw = getattr(resp, "text", "") or ""
     json_str = extract_json(raw)
-    data = json.loads(json_str)
-    return data
+    return json.loads(json_str)
 
 
 def main():
@@ -122,11 +124,12 @@ def main():
     failed = 0
 
     for filename in files:
-        if not filename.endswith(".txt"):
+        if not filename.endswith((".txt", ".md")):
             continue
 
         input_path = os.path.join(INPUT_FOLDER, filename)
-        output_filename = filename.replace(".txt", "_translated.json")
+        base_name = os.path.splitext(filename)[0]
+        output_filename = f"{base_name}_translated.json"
         output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
         if os.path.exists(output_path):
@@ -159,7 +162,6 @@ def main():
 
     print(f"Done. processed={processed}, skipped={skipped}, failed={failed}")
 
-    # If everything failed, make the run fail to avoid false green.
     if processed == 0 and failed > 0:
         raise RuntimeError("All translations failed. Check GEMINI_API_KEY and model output.")
 
