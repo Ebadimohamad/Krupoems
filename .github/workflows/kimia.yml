@@ -1,34 +1,22 @@
-name: Kimia Translator Agent
+name: Kimia Translator Pipeline
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - "works/**"
-      - "translator_agent.py"
-      - ".github/workflows/kimia.yml"
-
-permissions:
-  contents: write
-
-concurrency:
-  group: kimia-translator
-  cancel-in-progress: false
+      - 'works/**'
 
 jobs:
-  translate:
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.9'
 
       - name: Install dependencies
         run: |
@@ -38,24 +26,17 @@ jobs:
       - name: Run Kimia translator agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-1.5-pro
-          KIMIA_SLEEP_SECONDS: "2"
         run: |
+          echo "Starting translation..."
           python translator_agent.py
+          echo "Finished translation."
 
-      - name: Commit and push if changed
+      - name: Commit and push changes
         run: |
-          git config user.name "kimia-bot"
-          git config user.email "kimia-bot@users.noreply.github.com"
-
-          git add -A
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git commit -m "Kimia: auto-translate new works"
+          git config --global user.name 'Kimia-Bot'
+          git config --global user.email 'kimia@kru.org'
+          git add translatedworks/
+          git commit -m "Automated translation by Kimia" || echo "No changes to commit"
           git push
 
 
